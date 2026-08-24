@@ -1,0 +1,24 @@
+---
+title: "ME315 - Lista 02"
+format: pdf
+editor: visual
+---
+
+
+## Conexão R \>\>\> SQLite
+
+```{r}
+library(DBI)
+library(RSQLite)
+
+# Se eu rodar esse chuck ele vai criar um arquivo vazio 
+con <- dbConnect (SQLite(), "me315.sqlite")
+
+```
+
+
+```{r}
+DBI::dbGetQuery(con, "
+SELECT * FROM PRESERVE" )
+
+```
