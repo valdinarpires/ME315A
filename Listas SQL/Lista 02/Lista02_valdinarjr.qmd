@@ -4,7 +4,6 @@ format: pdf
 editor: visual
 ---
 
-
 ## Conexão R \>\>\> SQLite
 
 ```{r}
@@ -24,15 +23,15 @@ SELECT * FROM PRESERVE
 
 Os exercícios a seguir fazem referência à tabela \``` PRESERVE` ``
 
-1. Exiba a tabela inteira. Ordene o resultado pela coluna `ACRES` em ordem crescente.
+1.  Exiba a tabela inteira. Ordene o resultado pela coluna `ACRES` em ordem crescente.
 
 ```{sql connection=con}
 
 SELECT * FROM PRESERVE
 ORDER BY ACRES ASC
 ```
-2. Exiba o nome da reserva `(PNAME)` e a taxa de entrada `(FEE)` de cada reserva natural localizada em `Montana`. Ordene o resultado pelo nome da reserva em ordem decrescente.
 
+2.  Exiba o nome da reserva `(PNAME)` e a taxa de entrada `(FEE)` de cada reserva natural localizada em `Montana`. Ordene o resultado pelo nome da reserva em ordem decrescente.
 
 ```{sql connection=con}
 
@@ -41,9 +40,7 @@ WHERE STATE = 'MT'
 ORDER BY PNAME DESC
 ```
 
-
-3. Exiba as colunas `FEE` e `ACRES` de todas as linhas da tabela. Ordene as linhas exibidas por `ACRES` dentro de `FEE` (`FEE` é o campo de ordenação principal, e `ACRES` é o campo de ordenação secundário.)
-
+3.  Exiba as colunas `FEE` e `ACRES` de todas as linhas da tabela. Ordene as linhas exibidas por `ACRES` dentro de `FEE` (`FEE` é o campo de ordenação principal, e `ACRES` é o campo de ordenação secundário.)
 
 ```{sql connection=con}
 
@@ -51,8 +48,7 @@ SELECT FEE, ACRES FROM PRESERVE
 ORDER BY FEE, ACRES
 ```
 
-4. Suponha (irrealisticamente) que os valores de `PNO` sejam considerados confidenciais. Exiba o valor de `PNAME` para cada reserva natural localizada no Arizona. Apresente o resultado em ordem crescente de PNO, sem exibir os valores de PNO.
-
+4.  Suponha (irrealisticamente) que os valores de `PNO` sejam considerados confidenciais. Exiba o valor de `PNAME` para cada reserva natural localizada no Arizona. Apresente o resultado em ordem crescente de PNO, sem exibir os valores de PNO.
 
 ```{sql connection=con}
 
@@ -60,11 +56,8 @@ SELECT PNAME FROM PRESERVE
 WHERE STATE = 'AZ'
 ORDER BY PNO ASC
 ```
-5. Exiba os valores de `STATE`, `FEE` e `PNO` para todas as reservas naturais que tenham mais de 100 acres. Ordene a tabela resultante da seguinte forma:
-`STATE` é o campo de ordenação de primeiro nível, em ordem decrescente;
-`FEE` é o campo de ordenação de segundo nível, em ordem decrescente;
-`PNO` é o campo de ordenação de terceiro nível, em ordem crescente.
 
+5.  Exiba os valores de `STATE`, `FEE` e `PNO` para todas as reservas naturais que tenham mais de 100 acres. Ordene a tabela resultante da seguinte forma: `STATE` é o campo de ordenação de primeiro nível, em ordem decrescente; `FEE` é o campo de ordenação de segundo nível, em ordem decrescente; `PNO` é o campo de ordenação de terceiro nível, em ordem crescente.
 
 ```{sql connection=con}
 
@@ -73,7 +66,7 @@ WHERE ACRES > 100
 ORDER BY STATE DESC, FEE DESC, PNO ASC
 ```
 
-6. Exiba todas as linhas em que o valor de `STATE` seja maior ou igual à letra M.
+6.  Exiba todas as linhas em que o valor de `STATE` seja maior ou igual à letra M.
 
 ```{sql connection=con}
 
@@ -81,22 +74,23 @@ SELECT * FROM PRESERVE
 WHERE STATE >= 'M'
 ```
 
-
-7. Exiba todas as linhas em que o valor do nome da reserva `(PNAME)` seja menor que `TATKON`.
+7.  Exiba todas as linhas em que o valor do nome da reserva `(PNAME)` seja menor que `TATKON`.
 
 ```{sql connection=con}
 SELECT * FROM PRESERVE
 WHERE PNAME < 'TATKON'
 ```
+
 Os exercícios a seguir fazem referência à tabela EMPLOYEE.
 
-9. Exiba a tabela EMPLOYEE inteira, ordenada pelo nome do funcionário em ordem crescente.
+9.  Exiba a tabela EMPLOYEE inteira, ordenada pelo nome do funcionário em ordem crescente.
 
 ```{sql connection=con}
 SELECT * FROM EMPLOYEE
 ORDER BY ENAME ASC
 ```
-10. Exiba o nome e o salário de qualquer funcionário cujo salário seja superior a $ 2.000,00. Ordene o resultado pelo salário em ordem decrescente.
+
+10. Exiba o nome e o salário de qualquer funcionário cujo salário seja superior a \$ 2.000,00. Ordene o resultado pelo salário em ordem decrescente.
 
 ```{sql connection=con}
 
@@ -104,6 +98,7 @@ SELECT ENAME, SALARY FROM EMPLOYEE
 WHERE SALARY > 2000
 ORDER BY SALARY DESC
 ```
+
 11. Exiba o número do departamento (DNO), o número do funcionário (ENO) e o nome do funcionário de todos os funcionários (ENAME). Ordene o resultado pelo número do funcionário (em ordem crescente) dentro do número do departamento (em ordem decrescente).
 
 ```{sql connection=con}
@@ -111,7 +106,6 @@ ORDER BY SALARY DESC
 SELECT DNO, ENO, ENAME FROM EMPLOYEE
 ORDER BY DNO DESC, ENO ASC
 ```
-
 
 ```{r}
 Sys.setenv(TZ = "America/Sao_Paulo")
