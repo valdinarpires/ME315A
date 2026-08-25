@@ -4,7 +4,6 @@ format: pdf
 editor: visual
 ---
 
-
 ## Conexão R \>\>\> SQLite
 
 ```{r}
@@ -15,7 +14,6 @@ library(RSQLite)
 con <- dbConnect (SQLite(), "me315.sqlite")
 
 ```
-
 
 ```{r}
 DBI::dbGetQuery(con, "

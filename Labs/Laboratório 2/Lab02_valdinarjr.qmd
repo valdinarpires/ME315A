@@ -2,7 +2,7 @@
 title: "Lab02"
 author: "Valdinar Pires"
 date: "23/08/2026"
-output: html_document
+output: pdf_document
 ---
 
 ```{r setup, include=FALSE}
@@ -24,73 +24,42 @@ Lendo 100.000 observações por vez (se você acredita que seu computador não t
 
 Observação: a atividade descrita no slide pede para ler apenas 100 registros por vez. Aqui, mudamos para 100 mil registros por vez, para que haja melhor aproveitamento do tempo em classe.
 
-Session -> Set Working Directory -> Choose Directory
-``` {r}
-#onde está o arquivo de voos? Ele coloca o diretorio no lugar onde esa os arquivos p/ o r conseguir ler
-setwd('C:/Users/User/Documents/Unicamp/Banco de Dados/Laboratórios/02')
-```
+## Instruções
 
 1- Quais são as estatísticas suficientes para a determinação do percentual de vôos atrasados na chegada (ARRIVAL_DELAY > 10)?
 
-As estatística suficientes são sum(ARRIVAL_DELAY > 10) e o numero de voos que ocorreram em cada combinacao de DIA/MES/ANO
+As estatísticas suficientes são o número total de voos e o número de voos que atrasaram mais de 10 minutos (ARRIVAL_DELAY > 10), para cada grupo de dia, mês e companhia aérea.
 
+2- Crie uma função chamada getStats que, para um conjunto de qualquer tamanho de dados provenientes de flights.csv.zip, execute as seguintes tarefas (usando apenas verbos do dplyr):
 
-
-``` {r}
-library(tidyverse)
-
-#m_max o numero maximo de linhas que se quer obter a leitura
-amostra = read_csv("flights.csv.zip", n_max = 100)
-
-#Espiando as variaveis
-amostra %>% glimpse()
-
-#vendo a memoria necessaria para procecessar o banco de dados 
-object.size(amostra)
-
-#escolhendo as variavies corretamente para cada coluna
-mycolunas = cols_only( YEAR = 'i', MONTH = 'i', DAY = 'i', AIRLINE ='c',
-                       ARRIVAL_DELAY = 'i')
-#diminuindo a memoria necessaria para ler o banco de dados
-amostra2 <- read_csv("flights.csv.zip", 
-                     n_max = 100, 
-                     col_types = mycolunas)
-amostra2 %>% glimpse()
-#Diminiu cerca de 4x o tamanho de processamento
-object.size(amostra2)
-
-
-```
-
-2- Crie uma função chamada getStats que, para um conjunto de qualquer tamanho de dados provenientes de flights.csv.zip, execute as seguintes tarefas (usando apenas verbos do dplyr:
-
-a. Filtre o conjunto de dados de forma que contenha apenas observações das seguintes Cias. Aéreas: AA, DL, UA e US;
-b. Remova observações que tenham valores faltantes em campos de interesse;
-  O campo de interesse: YEAR, MONTH, DAY, AIRLINE, ARRIVAL_DELAYS
-c. Agrupe o conjunto de dados resultante de acordo com: dia, mês e cia. aérea;
-d. Para cada grupo em b., determine as estatísticas suficientes apontadas no item 1. e os retorne como um objeto da classe tibble;
-
-O arquivo que vai ser usado tem que estar no mesmo diretorio/pasta que o RMD estiver
 ``` {r}
 library(tidyverse)
 
 getStats = function(input, pos){
-# a.
+
+  # a. Filtrar as companhias e o ano
   input %>%
-    filter(AIRLINE %in% c("AA", "DL", "UA", "US", YEAR == 2015))%>%
-# b. Removendo as linhas com os dados faltantes
-    drop_na(YEAR, MONTH, DAY, AIRLINE, ARRIVAL_DELAY)%>%
-# c. Agrupando os dados
-    group_by(DAY, MONTH,YEAR,AIRLINE) %>%
-# d. Resumindo os dados na questão de interesse DELAY > 10
-    summarise(n_parcial_atrasos = sum(ARRIVAL_DELAY > 10), n_parcial_voos =n()
-# tirar o group e previne futuro problemas
-  , .groups = "drop")
+    filter(
+      AIRLINE %in% c("AA", "DL", "UA", "US"),
+      YEAR == 2015
+    ) %>%
+    
+    # b. Remover valores faltantes
+    drop_na(YEAR, MONTH, DAY, AIRLINE, ARRIVAL_DELAY) %>%
+    
+    # c. Agrupar por ano, dia, mês e companhia
+    group_by(YEAR, DAY, MONTH, AIRLINE) %>%
+    
+    # d. Calcular as estatísticas suficientes
+    summarise(
+      n_parcial_voos = n(),
+      n_parcial_atrasos = sum(ARRIVAL_DELAY > 10),
+      .groups = "drop"
+    )
 }
 ```
 
 3- Utilize alguma função readr::read_***_chunked para importar o arquivo flights.csv.zip.
-
 
 ```{r}
                     #Lendo o arquivo de interesse
@@ -98,7 +67,7 @@ teste <- read_csv_chunked("flights.csv.zip",
                     #transformar os dados em o que ?
                           callback= DataFrameCallback$new(getStats),
                     #qual a quantidade de leitura por vez?
-                          chunk_size = 1e6,
+                          chunk_size = 100000,
                     #qual coluna ler e qual classe de variavel agregar?
                           col_types = cols_only( YEAR ='i', MONTH ='i',
                                                  DAY ='i', AIRLINE='c',
@@ -112,20 +81,60 @@ quasela <- teste %>% filter(AIRLINE == "AA", DAY == 7, MONTH == 3)
 ``` {r}
 #Combine as estatísticas suficientes para compor a métrica final de interesse (percentual de atraso por dia/mês/cia aérea);
 
-computeStats <- function(input){
+computeStats <- function(input) {
+  
   input %>%
     group_by(AIRLINE, DAY, MONTH, YEAR) %>%
-    summarise(Perc <- sum(n_parcial_atrasos)/ sum(n_parcial_voos), 
-              .groups = "drop" ) %>%
+    summarise(
+      Perc = sum(n_parcial_atrasos) / sum(n_parcial_voos),
+      .groups = "drop"
+    ) %>%
   #Retorne as informações em um tibble contendo apenas as seguintes colunas    com CIA, DATA E PERC:
-    rename(Cia <- AIRLINE) %>%
-    mutate(Data <- as.Date(paste(YEAR, MONTH, DAY, sep =" - "))) %>%
+    rename(
+      Cia = AIRLINE
+    ) %>%
+    mutate(
+      Data = as.Date(paste(YEAR, MONTH, DAY, sep = "-"))
+    ) %>%
     select(Cia, Data, Perc)
-  
-    
-}           
+}
 
-final = quasela %>% computeStats()
+stats <- computeStats(teste)
  
+```
+
+5 - Produza um mapa de calor em formato de calendário para cada Cia. Aérea.
+
+```{r}
+```{r}
+library(ggcal)
+library(ggplot2)
+
+pal <- scale_fill_gradient(
+  low = "#4575b4",
+  high = "#d73027"
+)
+
+baseCalendario <- function(stats, cia) {
+  
+  dados <- stats %>%
+    filter(Cia == cia)
+  
+  ggcal(
+    dates = dados$Data,
+    fills = dados$Perc
+  )
+}
+
+cAA <- baseCalendario(stats, "AA")
+cDL <- baseCalendario(stats, "DL")
+cUA <- baseCalendario(stats, "UA")
+cUS <- baseCalendario(stats, "US")
+
+cAA + pal + ggtitle("AA")
+cDL + pal + ggtitle("DL")
+cUA + pal + ggtitle("UA")
+cUS + pal + ggtitle("US")
+
 ```
 
