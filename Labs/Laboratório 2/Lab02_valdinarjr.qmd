@@ -2,7 +2,7 @@
 title: "Lab02"
 author: "Valdinar Pires"
 date: "23/08/2026"
-output: pdf_document
+output: pdf
 ---
 
 ```{r setup, include=FALSE}
